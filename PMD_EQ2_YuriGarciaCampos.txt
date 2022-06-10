@@ -1,0 +1,101 @@
+Yuri Garcia Campos
+
+Exercício 1
+Escreva uma consulta Map/Reduce do mongoDB para contar o número de restaurantes por tipo de gastronomia (cuisine).
+
+var mapFunction = function () { emit(this.cuisine, { count: 1 }); }
+
+var redFunction = function (cuisine, val) {
+    var value = { count: 0 };
+    for (i = 0; i < val.length; i++) {
+        value.count += val[i].count;
+    }
+    return value
+}
+
+db.restaurants.mapReduce(mapFunction, redFunction, { out: 'RestaurantsByCuisine' })
+
+db.RestaurantsByCuisine.find().pretty()
+
+db.RestaurantsByCuisine.find().sort({ value: 1 })
+
+-----------------------------------------------
+
+Exercício 4
+Escreva uma consulta Map/Reduce do mongoDB para contar os tipos de gastronomia (cuisine) diferentes por bairro (borough). Dica: use finalize.
+
+
+var mapFunction = function () { emit(this.borough, this.cuisine); }
+
+var redFunction = function (borough, val) {
+
+    const duplicates = (e, i, arr) => arr.indexOf(e) === i
+
+    let arr = val;
+
+    return arr.filter(duplicates);
+}
+
+var finalizeFunction = function (key, reducedVal) {
+    return reducedVal.length;
+}
+
+db.restaurants.mapReduce(mapFunction, redFunction, { out: 'cuisineByBorough', finalize: finalizeFunction });
+
+db.cuisineByBorough.find().sort({ value: 1 });
+
+-----------------------------------------------
+
+Exercício 7
+Escreva uma consulta Map/Reduce para calcular o número de restaurantes por bairro.
+
+
+var mapFunction = function () { emit(this.borough, this.restaurant_id); }
+
+var redFunction = function (borough, val) {
+
+    return val.length;
+}
+
+db.restaurants.mapReduce(mapFunction, redFunction, { out: 'restaurantsByBorough' })
+
+db.restaurantsByBorough.find().sort({ value: 1 })
+
+
+-----------------------------------------------
+
+Exercício 10
+Escreva uma consulta Map/Reduce para calcular o número de restaurantes cujo nome contém a string "Ice Cream".
+
+
+var mapFunction = function () {
+    emit("restaurantes com Ice Cream no nome", { name: this.name, count: 1 });
+}
+
+var reduceFunction = function (key, val) {
+
+    return val.length;
+}
+
+db.restaurants.mapReduce(mapFunction, reduceFunction, { out: { inline: 1 }, query: { name: { $regex: /Ice Cream/ } } });
+
+-----------------------------------------------
+
+Exercício 13
+Escreva uma consulta Map/Reduce para calcular o número de notas (score) por zipcode.
+
+
+var map = function () {
+    for (var idx = 0; idx < this.grades.length; idx++) {
+        var value = { score: this.grades[idx].score };
+
+        emit(this.address.zipcode, value);
+    }
+}
+
+var reduce = function (zipcode, val) {
+    return { count: val.length };
+}
+
+db.restaurants.mapReduce(map, reduce, { out: { inline: 1 } })
+

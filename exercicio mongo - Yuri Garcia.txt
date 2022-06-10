@@ -1,0 +1,150 @@
+Yuri Garcia Campos
+﻿
+Exercício 1
+Escreva uma consulta mongoDB para exibir os campos restaurant_id, nome, bairro e gastronomia para todos os documentos no restaurante da coleção.
+Resposta: 
+db.restaurants.find({}, {restaurant_id:1, name:1, borough:1, cuisine:1}).pretty()
+
+----------------------------------------
+
+Exercício 2
+Escreva uma consulta mongoDB para exibir os campos restaurant_id, nome, bairro e gastronomia, para todos os documentos no restaurante da coleção, mas não inclua o campo  _id.
+Resposta: 
+db.restaurants.find({}, {_id:0, restaurant_id:1, name:1, borough:1, cuisine:1}).pretty()
+
+----------------------------------------
+
+Exercício 3
+Escreva uma consulta mongoDB para exibir todos os restaurantes que estão no bairro Bronx. Quantos documentos são?
+Resposta: 
+db.restaurants.find({ borough: "Bronx" }).pretty()
+db.restaurants.find({ borough: "Bronx" }).count()
+
+----------------------------------------
+
+Exercício 4
+Escreva uma consulta mongoDB para exibir os primeiros 5 restaurantes que estão no bairro Bronx.
+Resposta: 
+db.restaurants.find({ borough: "Bronx" }).limit(5).pretty()
+
+----------------------------------------
+
+Exercício 5
+Escreva uma consulta mongoDB para exibir restaurantes do bairro Bronx: os próximos 5 restaurantes depois de pular os primeiros 5 que ficam nesse bairro.
+Resposta:
+db.restaurants.find({ borough: "Bronx" }).limit(5).skip(5).pretty()
+
+----------------------------------------
+
+Exercício 6
+Escreva uma consulta mongoDB para encontrar os restaurantes que alcançaram alguma pontuação superior a 90.
+Resposta:
+db.restaurants.find({ 'grades.score': { $gt: 90 } }).pretty()
+
+----------------------------------------
+
+Exercício 7
+Escreva uma consulta mongoDB para encontrar os restaurantes que alcançaram alguma pontuação, mais de 80 mas menos de 100. Compare os resultados usando e não usando  $elemMatch().
+Resposta: 
+db.restaurants.find( { 'grades.score' : { $gt: 80, $lt: 100 } } ).pretty()
+db.restaurants.find( { grades: { $elemMatch: { score: { $gt: 80, $lt: 100 } } } } ).pretty()
+Sem o $elemMatch() o primeiro restaurante mostrado tinha uma pontuação maior que 100.
+
+----------------------------------------
+
+Exercício 8
+Escreva uma consulta do mongoDB para encontrar os restaurantes que não tem a substring de "American" no campo culinária, e alcançaram uma pontuação de classificação 'A' e não pertencem ao bairro Brooklyn. O documento deve ser exibido de acordo com a cozinha em ordem decrescente. Dica: usar expressão regular para cuisine.
+Resposta: 
+db.restaurants.find({ cuisine: { $not: /^American.*$/ }, 'grades.grade': "A", borough: { $ne: "Brooklyn"} }).sort({ name: -1}).pretty()
+
+----------------------------------------
+
+Exercício 9
+Escreva uma consulta mongoDB para encontrar o Id, o nome, o bairro e o tipo de gastronomia do restaurante, para os restaurantes que pertencem aos bairros Staten Island ou Queens ou Bronx ou Brooklyn.
+Resposta: 
+db.restaurants.find({ $or: [ { borough: 'Staten Island' } , { borough: 'Queens' }, { borough: 'Bronx'}, { borough: 'Brooklyn'} ] }, { restaurant_id: 1, name: 1, borough: 1, cuisine: 1}).pretty()
+
+----------------------------------------
+
+Exercício 10
+Escreva uma consulta do mongoDB para encontrar o Id, o nome, o bairro e o tipo de gastronomia do restaurante, para os restaurantes que não pertencem aos bairros Staten Island ou Queens ou Bronx ou Brooklyn.
+Resposta: 
+db.restaurants.find({ $nor: [ { borough: 'Staten Island' } , { borough: 'Queens' }, { borough: 'Bronx'}, { borough: 'Brooklyn'} ] }, { restaurant_id: 1, name: 1, borough: 1, cuisine: 1}).pretty()
+
+----------------------------------------
+
+Exercício 11
+Escreva uma consulta do mongoDB para encontrar o Id, nome, bairro e tipo de gastronomia do restaurante, para os restaurantes que alcançaram alguma pontuação que não é superior a 10.
+Resposta: 
+db.restaurants.find({ 'grades.score': { $not: { $gt: 10} } }, { restaurant_id: 1, name: 1, borough: 1, cuisine: 1}).pretty()
+
+----------------------------------------
+
+Exercício 12
+Escreva uma consulta do mongoDB para encontrar o Id, o nome, o endereço e a localização geográfica do restaurante, para os restaurantes em que o 2º elemento da matriz coord contém um valor superior a 42 e até 52 - (42,52].
+Resposta: 
+db.restaurants.find({ 'address.coord.1': { $gt: 42, $lte: 52 }  }, { restaurant_id: 1, name: 1, borough: 1, cuisine: 1, address: 1}).pretty()
+
+----------------------------------------
+
+Exercício 13
+Escreva uma consulta mongoDB para exibir todos os dados dos restaurantes, e ordene pelo nome do restaurante em ordem crescente.
+Resposta: 
+db.restaurants.find().sort({ name: 1}).pretty()
+
+----------------------------------------
+
+Exercício 14
+Escreva uma consulta mongoDB para exibir todos os dados dos restaurantes, e ordene pelo nome do restaurante em ordem decrescente.
+Resposta: 
+db.restaurants.find().sort({ name: -1}).pretty()
+
+----------------------------------------
+
+Exercício 15
+Escreva uma consulta mongoDB para saber o número de restaurantes que não tem rua no endereço.
+Resposta: 
+db.restaurants.find({ 'address.street': { $exists: false } }).pretty()
+
+----------------------------------------
+
+Exercício 16
+Escreva uma consulta mongoDB que selecione o Id, o nome e as notas do restaurante, para os restaurantes que retornam 0 como resto da divisão de alguma pontuação por 7.
+Resposta: 
+db.restaurants.find({ 'grades.score': { $mod: [7, 0] } }, { restaurant_id: 1, name: 1, grades: 1}).pretty()
+
+----------------------------------------
+
+Exercício 17
+Escreva uma consulta mongoDB para encontrar o nome do restaurante, o bairro, a longitude e a altitude e a gastronomia, para os restaurantes que contêm a substring "mon" (três letras em algum lugar do nome).
+Resposta: 
+db.restaurants.find({ name: { $regex: /mon/ } }, { name: 1, borough: 1, 'address.coord': 1, cuisine:1}).pretty()
+
+----------------------------------------
+
+Exercício 18
+Escreva uma consulta mongoDB para contar quantos tipos de gastronomia diferentes têm. Use .disctinct() 
+Resposta: 
+db.restaurants.distinct('cuisine').length
+
+----------------------------------------
+
+Exercício 19
+Escreva uma consulta mongoDB para encontrar os restaurantes da rua Broadway.
+Resposta: 
+db.restaurants.find({ 'address.street': "Broadway" }).pretty()
+
+----------------------------------------
+
+Exercício 20
+Realize novamente a consulta do exercício 7 e salve o tempo de execução em milissegundos ao adicionar o seguinte trecho em negrito à consulta:
+db.restaurants.find({...}).explain("executionStats").executionStats.executionTimeMillis
+Resposta: 
+
+db.restaurants.find( { grades: { $elemMatch: { score: { $gt: 80, $lt: 100 } } } } ).explain("executionStats").executionStats.executionTimeMillis
+A primeira execução tomou 9ms de duração.
+
+a)  db.restaurants.createIndex({ 'grades.score': 1 })
+b)  Sobre o campo de pontuação dentro do vetor de notas
+c)  6ms
+d)  O índice torna a performance das consultas mais eficientes.
